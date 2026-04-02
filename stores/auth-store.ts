@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import auth from '@react-native-firebase/auth';
 import firestore from '@react-native-firebase/firestore';
+import { router } from 'expo-router';
 import { UserProfile } from '../types/user';
 import { DEFAULT_CALORIE_TARGET } from '../lib/constants';
 import { USERS_COLLECTION } from '../lib/firebase';
@@ -21,7 +22,7 @@ interface AuthState {
 export const useAuthStore = create<AuthState>((set, get) => ({
   user: null,
   profile: null,
-  loading: false,
+  loading: true,
   error: null,
 
   clearError: () => set({ error: null }),
@@ -30,6 +31,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     set({ loading: true, error: null });
     try {
       await auth().signInWithEmailAndPassword(email, password);
+      router.replace('/(tabs)');
     } catch (e: unknown) {
       set({ error: getFirebaseErrorMessage(e) });
     } finally {
@@ -55,6 +57,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
         .collection(USERS_COLLECTION)
         .doc(user.uid)
         .set(profile);
+      router.replace('/(tabs)');
     } catch (e: unknown) {
       set({ error: getFirebaseErrorMessage(e) });
     } finally {
@@ -65,6 +68,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   signOut: async () => {
     await auth().signOut();
     set({ user: null, profile: null });
+    router.replace('/(auth)/login');
   },
 
   loadProfile: async () => {

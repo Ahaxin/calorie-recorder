@@ -7,7 +7,7 @@ import {
   TouchableOpacity,
   SafeAreaView,
 } from 'react-native';
-import { format, addDays, subDays } from 'date-fns';
+import { format, addDays, subDays, parseISO } from 'date-fns';
 import { useMealsByDate } from '../../hooks/use-meals';
 import { useAuthStore } from '../../stores/auth-store';
 import { CalorieRing } from '../../components/calorie-ring';
@@ -30,16 +30,16 @@ export default function HistoryScreen() {
         {/* Date Navigator */}
         <View style={styles.dateNav}>
           <TouchableOpacity
-            onPress={() => setDate(format(subDays(new Date(date), 1), 'yyyy-MM-dd'))}
+            onPress={() => setDate(format(subDays(parseISO(date), 1), 'yyyy-MM-dd'))}
             style={styles.navBtn}
           >
             <Text style={styles.navArrow}>‹</Text>
           </TouchableOpacity>
           <Text style={styles.dateText}>
-            {format(new Date(date), 'EEE, MMM d yyyy')}
+            {format(parseISO(date), 'EEE, MMM d yyyy')}
           </Text>
           <TouchableOpacity
-            onPress={() => setDate(format(addDays(new Date(date), 1), 'yyyy-MM-dd'))}
+            onPress={() => setDate(format(addDays(parseISO(date), 1), 'yyyy-MM-dd'))}
             style={styles.navBtn}
           >
             <Text style={styles.navArrow}>›</Text>

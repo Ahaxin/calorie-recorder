@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -30,10 +30,11 @@ export default function FoodDetailScreen() {
       )
   );
 
-  if (!item) {
-    router.back();
-    return null;
-  }
+  useEffect(() => {
+    if (!item) router.back();
+  }, [item]);
+
+  if (!item) return null;
 
   const handleWeightChange = (index: number, value: string) => {
     setWeights((prev) => ({ ...prev, [String(index)]: value }));

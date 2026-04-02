@@ -35,6 +35,6 @@ export const DEFAULT_CALORIE_TARGET = 2000;
 /** Minimum confidence (0–100) for a food item to be auto-accepted */
 export const CONFIDENCE_THRESHOLD = 80;
 
-export const GEMINI_MODEL = 'gemini-2.0-flash';
+export const GEMINI_MODEL = 'gemini-2.5-flash';
 
 export const MAX_IMAGE_SIZE_MB = 4;

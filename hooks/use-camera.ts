@@ -1,6 +1,6 @@
 import { useCallback } from 'react';
 import * as ImagePicker from 'expo-image-picker';
-import * as FileSystem from 'expo-file-system';
+import * as FileSystem from 'expo-file-system/legacy';
 
 export type CameraResult = {
   uri: string;
@@ -42,7 +42,7 @@ export function useCamera() {
 
 async function readImage(uri: string): Promise<CameraResult> {
   const base64 = await FileSystem.readAsStringAsync(uri, {
-    encoding: FileSystem.EncodingType.Base64,
+    encoding: 'base64',
   });
   return { uri, base64, mimeType: 'image/jpeg' };
 }

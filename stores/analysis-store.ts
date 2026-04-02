@@ -59,7 +59,7 @@ export const useAnalysisStore = create<AnalysisSession & AnalysisActions>(
         }));
         set({ result, foodItems, isAnalyzing: false });
       } catch (e: unknown) {
-        set({ error: 'Failed to analyze food. Please try again.', isAnalyzing: false });
+set({ error: 'Failed to analyze food. Please try again.', isAnalyzing: false });
       }
     },
 

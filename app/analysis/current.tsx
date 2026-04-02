@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -55,10 +55,11 @@ export default function AnalysisScreen() {
     setClarification('');
   };
 
-  if (!photoUri) {
-    router.back();
-    return null;
-  }
+  useEffect(() => {
+    if (!photoUri) router.back();
+  }, [photoUri]);
+
+  if (!photoUri) return null;
 
   return (
     <SafeAreaView style={styles.safe}>
