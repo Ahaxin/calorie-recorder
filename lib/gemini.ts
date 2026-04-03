@@ -113,8 +113,7 @@ export async function analyzeFood(
     },
   });
 
-  const text = response.text ?? '';
-  return JSON.parse(text) as GeminiResponse;
+  return parseGeminiJson<GeminiResponse>(response.text);
 }
 
 const RECALC_SCHEMA = {
@@ -160,6 +159,17 @@ export async function recalculateFoodItem(
     },
   });
 
-  const text = response.text ?? '';
-  return JSON.parse(text) as GeminiFood;
+  return parseGeminiJson<GeminiFood>(response.text);
+}
+
+function parseGeminiJson<T>(rawText: string | undefined): T {
+  if (!rawText?.trim()) {
+    throw new Error('Gemini returned an empty response.');
+  }
+
+  try {
+    return JSON.parse(rawText) as T;
+  } catch {
+    throw new Error('Gemini returned malformed JSON.');
+  }
 }

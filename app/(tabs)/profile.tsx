@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   View,
   Text,
@@ -18,14 +18,22 @@ export default function ProfileScreen() {
     String(profile?.dailyCalorieTarget ?? DEFAULT_CALORIE_TARGET)
   );
 
+  useEffect(() => {
+    setTarget(String(profile?.dailyCalorieTarget ?? DEFAULT_CALORIE_TARGET));
+  }, [profile?.dailyCalorieTarget]);
+
   const handleSave = async () => {
     const val = parseInt(target, 10);
     if (!val || val < 500 || val > 10000) {
       Alert.alert('Invalid value', 'Please enter a calorie target between 500 and 10,000.');
       return;
     }
-    await updateProfile({ dailyCalorieTarget: val });
-    Alert.alert('Saved', 'Daily calorie target updated.');
+    try {
+      await updateProfile({ dailyCalorieTarget: val });
+      Alert.alert('Saved', 'Daily calorie target updated.');
+    } catch {
+      Alert.alert('Error', 'Failed to update daily calorie target. Please try again.');
+    }
   };
 
   return (

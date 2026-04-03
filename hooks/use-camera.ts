@@ -8,10 +8,15 @@ export type CameraResult = {
   mimeType: string;
 };
 
+export type CameraPickResult =
+  | { status: 'success'; data: CameraResult }
+  | { status: 'permission_denied' }
+  | { status: 'cancelled' };
+
 export function useCamera() {
-  const pickFromCamera = useCallback(async (): Promise<CameraResult | null> => {
+  const pickFromCamera = useCallback(async (): Promise<CameraPickResult> => {
     const { status } = await ImagePicker.requestCameraPermissionsAsync();
-    if (status !== 'granted') return null;
+    if (status !== 'granted') return { status: 'permission_denied' };
 
     const result = await ImagePicker.launchCameraAsync({
       mediaTypes: ['images'],
@@ -19,13 +24,13 @@ export function useCamera() {
       base64: false,
     });
 
-    if (result.canceled || !result.assets[0]) return null;
-    return readImage(result.assets[0].uri);
+    if (result.canceled || !result.assets[0]) return { status: 'cancelled' };
+    return { status: 'success', data: await readImage(result.assets[0]) };
   }, []);
 
-  const pickFromGallery = useCallback(async (): Promise<CameraResult | null> => {
+  const pickFromGallery = useCallback(async (): Promise<CameraPickResult> => {
     const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
-    if (status !== 'granted') return null;
+    if (status !== 'granted') return { status: 'permission_denied' };
 
     const result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ['images'],
@@ -33,16 +38,16 @@ export function useCamera() {
       base64: false,
     });
 
-    if (result.canceled || !result.assets[0]) return null;
-    return readImage(result.assets[0].uri);
+    if (result.canceled || !result.assets[0]) return { status: 'cancelled' };
+    return { status: 'success', data: await readImage(result.assets[0]) };
   }, []);
 
   return { pickFromCamera, pickFromGallery };
 }
 
-async function readImage(uri: string): Promise<CameraResult> {
-  const base64 = await FileSystem.readAsStringAsync(uri, {
+async function readImage(asset: ImagePicker.ImagePickerAsset): Promise<CameraResult> {
+  const base64 = await FileSystem.readAsStringAsync(asset.uri, {
     encoding: 'base64',
   });
-  return { uri, base64, mimeType: 'image/jpeg' };
+  return { uri: asset.uri, base64, mimeType: asset.mimeType ?? 'image/jpeg' };
 }

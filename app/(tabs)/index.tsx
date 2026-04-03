@@ -23,27 +23,30 @@ export default function MainScreen() {
 
   const handleCamera = async () => {
     const result = await pickFromCamera();
-    if (!result) {
+    if (result.status === 'permission_denied') {
       Alert.alert('Permission Required', 'Camera access is needed to take food photos.');
       return;
     }
+    if (result.status === 'cancelled') return;
     reset();
-    setPhoto(result.uri, result.base64, result.mimeType);
+    setPhoto(result.data.uri, result.data.base64, result.data.mimeType);
     setLocalText('');
   };
 
   const handleGallery = async () => {
     const result = await pickFromGallery();
-    if (!result) return;
+    if (result.status !== 'success') return;
     reset();
-    setPhoto(result.uri, result.base64, result.mimeType);
+    setPhoto(result.data.uri, result.data.base64, result.data.mimeType);
     setLocalText('');
   };
 
   const handleAnalyze = async () => {
     setTextDescription(localText);
-    await analyze();
-    router.push('/analysis/current');
+    const succeeded = await analyze();
+    if (succeeded) {
+      router.push('/analysis/current');
+    }
   };
 
   return (

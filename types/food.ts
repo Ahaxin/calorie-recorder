@@ -1,4 +1,4 @@
-import { Timestamp } from '@react-native-firebase/firestore';
+import type { FirebaseFirestoreTypes } from '@react-native-firebase/firestore';
 
 export type MealCategory = 'breakfast' | 'lunch' | 'dinner' | 'snack';
 
@@ -29,7 +29,7 @@ export interface MealEntry {
   textDescription?: string;
   foodItems: FoodItem[];
   totalCalories: number;
-  analyzedAt: Timestamp;
-  savedAt: Timestamp;
+  analyzedAt: FirebaseFirestoreTypes.Timestamp;
+  savedAt: FirebaseFirestoreTypes.Timestamp;
   date: string; // "YYYY-MM-DD"
 }
