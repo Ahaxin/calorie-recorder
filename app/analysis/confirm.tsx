@@ -165,14 +165,18 @@ export default function ConfirmScreen(): React.JSX.Element {
         style={styles.flex}
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
       >
-        {/* Full-screen photo preview */}
-        <Image
-          source={{ uri: photoUri }}
-          style={styles.photo}
-          resizeMode="cover"
-        />
+        {/* Photo centered in remaining space with cute frame */}
+        <View style={styles.photoArea}>
+          <View style={[styles.frame, { borderColor: colors.primary, shadowColor: colors.primary }]}>
+            <Image
+              source={{ uri: photoUri }}
+              style={styles.photo}
+              resizeMode="cover"
+            />
+          </View>
+        </View>
 
-        {/* Bottom panel */}
+        {/* Bottom panel — pinned to bottom */}
         <View style={[styles.bottomPanel, { backgroundColor: colors.surface }]}>
           {error && (
             <View style={[styles.errorBanner, { backgroundColor: colors.danger + '15' }]}>
@@ -218,13 +222,30 @@ export default function ConfirmScreen(): React.JSX.Element {
 const styles = StyleSheet.create({
   safe: { flex: 1 },
   flex: { flex: 1 },
-  photo: {
+  photoArea: {
     flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: 24,
+  },
+  frame: {
+    borderRadius: 20,
+    borderWidth: 3,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.25,
+    shadowRadius: 12,
+    elevation: 8,
+    overflow: 'hidden',
     width: '100%',
+    aspectRatio: 4 / 3,
+  },
+  photo: {
+    width: '100%',
+    height: '100%',
   },
   bottomPanel: {
     paddingHorizontal: 24,
-    paddingTop: 20,
+    paddingTop: 16,
     paddingBottom: 28,
     gap: 12,
     borderTopLeftRadius: 20,

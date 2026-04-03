@@ -21,6 +21,8 @@ export function configureNotifications(): void {
       shouldShowAlert: true,
       shouldPlaySound: true,
       shouldSetBadge: false,
+      shouldShowBanner: true,
+      shouldShowList: true,
     }),
   });
 
@@ -67,6 +69,7 @@ export async function scheduleMealReminder(time: string, mealLabel: string): Pro
       sound: true,
     },
     trigger: {
+      type: Notifications.SchedulableTriggerInputTypes.CALENDAR,
       hour,
       minute,
       repeats: true,
@@ -146,6 +149,7 @@ export async function scheduleNutritionNudge(): Promise<void> {
         sound: true,
       },
       trigger: {
+        type: Notifications.SchedulableTriggerInputTypes.CALENDAR,
         hour: 15,
         minute: 0,
         repeats: true,

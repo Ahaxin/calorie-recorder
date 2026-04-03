@@ -7,6 +7,8 @@
 - Expo CLI: included via `npx expo`
 - Android Studio (for emulator) or a physical Android device
 
+> For the full Android emulator setup guide, see **[EMULATOR.md](./EMULATOR.md)**.
+
 ---
 
 ## Environment Variables
@@ -122,6 +124,9 @@ Shake the device → **Reload**
 | `Incompatible React versions` | Wrong React version for Expo SDK | Run `npx expo install --fix` |
 | `model not found / 404` | Wrong Gemini model name | Check available models via API, update `GEMINI_MODEL` in `lib/constants.ts` |
 | Port already in use | Previous server still running | Run `npx kill-port 8081` |
+| `undefined symbol: operator new` (NDK build) | NDK 27 + CMake 3.22 C++ STL issue | See EMULATOR.md — CMake patches already applied to node_modules |
+| `ClassNotFoundException: SplashScreenManager` | Missing expo-splash-screen | Run `npm install expo-splash-screen` then rebuild |
+| `firestore/permission-denied` on rewards/meals | Firestore rules too narrow | Use `match /users/{userId}/{document=**}` wildcard rule in Firebase Console |
 
 ### Check available Gemini models
 

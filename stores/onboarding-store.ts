@@ -14,6 +14,7 @@ export interface OnboardingData {
 
 export interface CalculatedTargets {
   dailyCalories: number;
+  tdee: number;
   dailyProteinTarget: number;
   dailyCarbsTarget: number;
   dailyFatTarget: number;

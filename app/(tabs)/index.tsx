@@ -5,16 +5,19 @@ import {
   StyleSheet,
   TouchableOpacity,
   Alert,
-  Image,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Svg, { Rect, Circle, Path } from 'react-native-svg';
 import { router } from 'expo-router';
 import { useCamera } from '../../hooks/use-camera';
 import { useAnalysisStore } from '../../stores/analysis-store';
+import { useMealsByDate } from '../../hooks/use-meals';
+import { format } from 'date-fns';
 import { useTheme } from '../../lib/theme';
 import { getMotivationalMessage } from '../../lib/messages';
 import { useRewardsStore } from '../../stores/rewards-store';
+import { useAuthStore } from '../../stores/auth-store';
+import { DEFAULT_CALORIE_TARGET } from '../../lib/constants';
 
 function CameraIcon({ size = 52, color = '#fff' }: { size?: number; color?: string }) {
   return (
@@ -30,9 +33,15 @@ function CameraIcon({ size = 52, color = '#fff' }: { size?: number; color?: stri
 
 export default function MainScreen(): React.JSX.Element {
   const { pickFromCamera, pickFromGallery } = useCamera();
-  const { setPhoto, reset, photoUri } = useAnalysisStore();
+  const { setPhoto, reset } = useAnalysisStore();
   const { colors } = useTheme();
   const { rewards, loadRewards } = useRewardsStore();
+  const { profile } = useAuthStore();
+  const { meals: todayMeals } = useMealsByDate(format(new Date(), 'yyyy-MM-dd'));
+  const target = profile?.dailyCalorieTarget ?? DEFAULT_CALORIE_TARGET;
+  const consumed = todayMeals.reduce((sum, m) => sum + m.totalCalories, 0);
+  const remaining = Math.max(0, target - consumed);
+  const isOver = consumed > target;
 
   useEffect(() => {
     const unsubscribe = loadRewards();
@@ -42,10 +51,11 @@ export default function MainScreen(): React.JSX.Element {
   const streak = rewards?.streak ?? 0;
   const totalStars = rewards?.totalStars ?? 0;
   const rewardsLabel = streak > 0 ? `⭐ ${totalStars} · ${streak}🔥` : `⭐ ${totalStars}`;
+  const hasMealsToday = todayMeals.length > 0;
 
   const motivationalMessage = useMemo(
-    () => getMotivationalMessage({ hour: new Date().getHours(), hasMealsToday: false, streak: 0 }),
-    []
+    () => getMotivationalMessage({ hour: new Date().getHours(), hasMealsToday, streak }),
+    [hasMealsToday, streak]
   );
 
   const handleCamera = async (): Promise<void> => {
@@ -95,21 +105,40 @@ export default function MainScreen(): React.JSX.Element {
 
         {/* Camera button */}
         <TouchableOpacity
-          style={[styles.cameraButton, { backgroundColor: photoUri ? 'transparent' : colors.primary }]}
+          style={[styles.cameraButton, { backgroundColor: colors.primary }]}
           onPress={handleCamera}
           activeOpacity={0.85}
         >
-          {photoUri ? (
-            <Image source={{ uri: photoUri }} style={styles.photoThumbnail} resizeMode="cover" />
-          ) : (
-            <CameraIcon size={56} color="#fff" />
-          )}
+          <CameraIcon size={56} color="#fff" />
         </TouchableOpacity>
 
         {/* Gallery link */}
         <TouchableOpacity onPress={handleGallery} activeOpacity={0.7} style={styles.galleryLink}>
           <Text style={[styles.galleryLinkText, { color: colors.primary }]}>or choose from gallery</Text>
         </TouchableOpacity>
+
+        {/* Calorie indicator */}
+        <View style={[styles.calorieCard, { backgroundColor: colors.surface }]}>
+          {isOver ? (
+            <>
+              <Text style={[styles.calorieMain, { color: colors.danger }]}>
+                {Math.round(consumed - target)} kcal over
+              </Text>
+              <Text style={[styles.calorieSub, { color: colors.textSecondary }]}>
+                {Math.round(consumed)} / {target} kcal today
+              </Text>
+            </>
+          ) : (
+            <>
+              <Text style={[styles.calorieMain, { color: colors.success }]}>
+                {Math.round(remaining)} kcal left
+              </Text>
+              <Text style={[styles.calorieSub, { color: colors.textSecondary }]}>
+                {Math.round(consumed)} / {target} kcal today
+              </Text>
+            </>
+          )}
+        </View>
       </View>
     </SafeAreaView>
   );
@@ -150,7 +179,21 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     overflow: 'hidden',
   },
-  photoThumbnail: { width: 200, height: 200 },
   galleryLink: { marginTop: 16, padding: 8 },
   galleryLinkText: { fontSize: 14 },
+  calorieCard: {
+    marginTop: 24,
+    borderRadius: 14,
+    paddingVertical: 14,
+    paddingHorizontal: 28,
+    alignItems: 'center',
+    gap: 4,
+  },
+  calorieMain: {
+    fontSize: 22,
+    fontWeight: '700',
+  },
+  calorieSub: {
+    fontSize: 13,
+  },
 });

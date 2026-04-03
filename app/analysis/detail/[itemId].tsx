@@ -21,15 +21,11 @@ export default function FoodDetailScreen(): React.JSX.Element | null {
   const { colors } = useTheme();
   const item = foodItems.find((f) => f.id === itemId);
 
-  const [weights, setWeights] = useState<Record<string, string>>(
-    () =>
-      Object.fromEntries(
-        (item?.ingredients ?? []).map((ing, i) => [
-          String(i),
-          String(Math.round(ing.estimatedWeightGrams)),
-        ])
-      )
-  );
+  const totalWeight = item
+    ? item.ingredients.reduce((sum, ing) => sum + ing.estimatedWeightGrams, 0)
+    : 0;
+
+  const [weightInput, setWeightInput] = useState(String(Math.round(totalWeight)));
 
   useEffect(() => {
     if (!item) router.back();
@@ -37,18 +33,23 @@ export default function FoodDetailScreen(): React.JSX.Element | null {
 
   if (!item) return null;
 
-  const handleWeightChange = (index: number, value: string) => {
-    setWeights((prev) => ({ ...prev, [String(index)]: value }));
-  };
-
   const handleRecalculate = async () => {
-    const updatedIngredients = item.ingredients.map((ing, i) => ({
+    const newTotal = parseFloat(weightInput);
+    if (!newTotal || newTotal <= 0) {
+      Alert.alert('Invalid', 'Please enter a valid weight.');
+      return;
+    }
+
+    const ratio = newTotal / totalWeight;
+    const scaledIngredients = item.ingredients.map((ing) => ({
       ...ing,
-      estimatedWeightGrams: parseFloat(weights[String(i)]) || ing.estimatedWeightGrams,
+      estimatedWeightGrams: ing.estimatedWeightGrams * ratio,
+      calories: ing.calories * ratio,
     }));
-    updateFoodItem(item.id, { ingredients: updatedIngredients });
+
+    updateFoodItem(item.id, { ingredients: scaledIngredients });
     await recalculateItem(item.id);
-    Alert.alert('Updated', 'Calories recalculated based on new weights.');
+    Alert.alert('Updated', 'Calories recalculated based on new amount.');
   };
 
   return (
@@ -63,28 +64,21 @@ export default function FoodDetailScreen(): React.JSX.Element | null {
         <Text style={[styles.sectionTitle, { color: colors.text }]}>Ingredients</Text>
         <IngredientList ingredients={item.ingredients} />
 
-        <Text style={[styles.sectionTitle, { color: colors.text }]}>Edit Weights (grams)</Text>
+        <Text style={[styles.sectionTitle, { color: colors.text }]}>Adjust Amount</Text>
         <Text style={[styles.hint, { color: colors.textSecondary }]}>
-          Adjust the weight of each ingredient, then tap Recalculate.
+          Change the total weight to recalculate calories proportionally.
         </Text>
 
-        <View style={styles.editTable}>
-          {item.ingredients.map((ing, i) => (
-            <View key={i} style={[styles.editRow, { backgroundColor: colors.surface }]}>
-              <Text style={[styles.ingName, { color: colors.text }]}>{ing.name}</Text>
-              <TextInput
-                style={[
-                  styles.weightInput,
-                  { borderColor: colors.border, color: colors.text },
-                ]}
-                value={weights[String(i)]}
-                onChangeText={(v) => handleWeightChange(i, v)}
-                keyboardType="decimal-pad"
-                selectTextOnFocus
-              />
-              <Text style={[styles.gLabel, { color: colors.textSecondary }]}>g</Text>
-            </View>
-          ))}
+        <View style={[styles.weightRow, { backgroundColor: colors.surface }]}>
+          <Text style={[styles.weightLabel, { color: colors.text }]}>Total weight</Text>
+          <TextInput
+            style={[styles.weightInput, { borderColor: colors.border, color: colors.text }]}
+            value={weightInput}
+            onChangeText={setWeightInput}
+            keyboardType="decimal-pad"
+            selectTextOnFocus
+          />
+          <Text style={[styles.gLabel, { color: colors.textSecondary }]}>g</Text>
         </View>
 
         <Button
@@ -115,22 +109,21 @@ const styles = StyleSheet.create({
     marginTop: 4,
   },
   hint: { fontSize: 13 },
-  editTable: { gap: 8 },
-  editRow: {
+  weightRow: {
     flexDirection: 'row',
     alignItems: 'center',
     borderRadius: 8,
-    padding: 10,
-    gap: 8,
+    padding: 12,
+    gap: 10,
   },
-  ingName: { flex: 1, fontSize: 14 },
+  weightLabel: { flex: 1, fontSize: 15 },
   weightInput: {
-    width: 64,
+    width: 80,
     borderWidth: 1,
     borderRadius: 6,
-    padding: 6,
+    padding: 8,
     textAlign: 'center',
-    fontSize: 14,
+    fontSize: 15,
   },
-  gLabel: { fontSize: 13, width: 14 },
+  gLabel: { fontSize: 14, width: 14 },
 });

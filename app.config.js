@@ -40,6 +40,7 @@ const config = {
   plugins: [
     "expo-router",
     "expo-camera",
+    "expo-notifications",
     ["@react-native-firebase/app", {}],
     ["expo-dev-client", { launchMode: "most-recent" }],
   ],

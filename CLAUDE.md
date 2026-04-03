@@ -63,13 +63,24 @@ The app is built in 7 phases. See plan at:
 
 | Phase | Status | Description |
 |-------|--------|-------------|
-| 1 | pending | Project scaffolding & Auth |
-| 2 | pending | Camera & Photo capture |
-| 3 | pending | Gemini AI integration |
-| 4 | pending | Data persistence (Firestore) |
-| 5 | pending | History & Profile pages |
-| 6 | pending | Edit & Recalculate flow |
-| 7 | pending | Polish & Google Sign-In |
+| 1 | complete | Project scaffolding & Auth |
+| 2 | complete | Camera & Photo capture |
+| 3 | complete | Gemini AI integration |
+| 4 | complete | Data persistence (Firestore) |
+| 5 | complete | History & Profile pages |
+| 6 | complete | Edit & Recalculate flow |
+| 7 | in progress | Polish & Google Sign-In |
+
+## Running on Android Emulator
+See `EMULATOR.md` for the full step-by-step guide.
+
+**Quick summary:**
+1. Start the Pixel 9 Pro AVD in Android Studio
+2. Build: `cd android && ./gradlew.bat app:assembleDebug -PreactNativeArchitectures=x86_64 --build-cache`
+3. Install: `adb -s emulator-5554 install -r android/app/build/outputs/apk/debug/app-debug.apk`
+4. Metro: `npx expo start --port 8081`
+5. Forward port: `adb -s emulator-5554 reverse tcp:8081 tcp:8081`
+6. Connect dev client via deep link (see EMULATOR.md)
 
 ## Using Agents (Harness Engineering)
 This project uses specialized agents for different concerns:
