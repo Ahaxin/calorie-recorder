@@ -12,10 +12,11 @@ import { Link } from 'expo-router';
 import { useAuthStore } from '../../stores/auth-store';
 import { Button } from '../../components/ui/button';
 import { Input } from '../../components/ui/input';
-import { COLORS } from '../../lib/constants';
+import { useTheme } from '../../lib/theme';
 
-export default function LoginScreen() {
+export default function LoginScreen(): React.JSX.Element {
   const { signIn, loading, error, clearError } = useAuthStore();
+  const { colors } = useTheme();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
 
@@ -30,19 +31,19 @@ export default function LoginScreen() {
       behavior={Platform.OS === 'ios' ? 'padding' : undefined}
     >
       <ScrollView
-        contentContainerStyle={styles.container}
+        contentContainerStyle={[styles.container, { backgroundColor: colors.background }]}
         keyboardShouldPersistTaps="handled"
       >
         <View style={styles.header}>
           <Text style={styles.emoji}>🥗</Text>
-          <Text style={styles.title}>Calorie Recorder</Text>
-          <Text style={styles.subtitle}>Track what you eat</Text>
+          <Text style={[styles.title, { color: colors.text }]}>Calorie Recorder</Text>
+          <Text style={[styles.subtitle, { color: colors.textSecondary }]}>Track what you eat</Text>
         </View>
 
-        <View style={styles.form}>
+        <View style={[styles.form, { backgroundColor: colors.surface }]}>
           {error && (
-            <View style={styles.errorBanner}>
-              <Text style={styles.errorText}>{error}</Text>
+            <View style={[styles.errorBanner, { backgroundColor: colors.danger + '15' }]}>
+              <Text style={[styles.errorText, { color: colors.danger }]}>{error}</Text>
             </View>
           )}
 
@@ -75,10 +76,10 @@ export default function LoginScreen() {
           />
 
           <View style={styles.footer}>
-            <Text style={styles.footerText}>Don't have an account? </Text>
+            <Text style={[styles.footerText, { color: colors.textSecondary }]}>Don't have an account? </Text>
             <Link href="/(auth)/register" asChild>
               <TouchableOpacity>
-                <Text style={styles.link}>Sign Up</Text>
+                <Text style={[styles.link, { color: colors.primary }]}>Sign Up</Text>
               </TouchableOpacity>
             </Link>
           </View>
@@ -91,7 +92,6 @@ export default function LoginScreen() {
 const styles = StyleSheet.create({
   container: {
     flexGrow: 1,
-    backgroundColor: COLORS.background,
     padding: 24,
     justifyContent: 'center',
   },
@@ -103,15 +103,12 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 28,
     fontWeight: '700',
-    color: COLORS.text,
   },
   subtitle: {
     fontSize: 15,
-    color: COLORS.textSecondary,
     marginTop: 4,
   },
   form: {
-    backgroundColor: COLORS.surface,
     borderRadius: 16,
     padding: 20,
     shadowColor: '#000',
@@ -121,13 +118,11 @@ const styles = StyleSheet.create({
     elevation: 3,
   },
   errorBanner: {
-    backgroundColor: COLORS.danger + '15',
     borderRadius: 8,
     padding: 12,
     marginBottom: 16,
   },
   errorText: {
-    color: COLORS.danger,
     fontSize: 14,
   },
   footer: {
@@ -135,6 +130,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     marginTop: 20,
   },
-  footerText: { color: COLORS.textSecondary, fontSize: 14 },
-  link: { color: COLORS.primary, fontSize: 14, fontWeight: '600' },
+  footerText: { fontSize: 14 },
+  link: { fontSize: 14, fontWeight: '600' },
 });

@@ -14,7 +14,8 @@ interface AuthState {
   signIn: (email: string, password: string) => Promise<void>;
   signUp: (email: string, password: string, displayName: string) => Promise<void>;
   signOut: () => Promise<void>;
-  updateProfile: (updates: Partial<Pick<UserProfile, 'displayName' | 'dailyCalorieTarget'>>) => Promise<void>;
+  updateProfile: (updates: Partial<Pick<UserProfile, 'displayName' | 'dailyCalorieTarget' | 'notificationsEnabled' | 'mealReminderTimes'>>) => Promise<void>;
+  toggleTheme: () => Promise<void>;
   loadProfile: () => Promise<void>;
   clearError: () => void;
 }
@@ -57,7 +58,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
         .collection(USERS_COLLECTION)
         .doc(user.uid)
         .set(profile);
-      router.replace('/(tabs)');
+      router.replace('/(onboarding)/step1-goal');
     } catch (e: unknown) {
       set({ error: getFirebaseErrorMessage(e) });
     } finally {
@@ -111,6 +112,24 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       throw e;
     } finally {
       set({ loading: false });
+    }
+  },
+
+  toggleTheme: async () => {
+    const user = auth().currentUser;
+    if (!user) return;
+    const currentTheme = get().profile?.theme;
+    const newTheme: 'light' | 'dark' = currentTheme === 'dark' ? 'light' : 'dark';
+    try {
+      await firestore()
+        .collection(USERS_COLLECTION)
+        .doc(user.uid)
+        .update({ theme: newTheme });
+      set((state) => ({
+        profile: state.profile ? { ...state.profile, theme: newTheme } : null,
+      }));
+    } catch (e: unknown) {
+      set({ error: getFirebaseErrorMessage(e) });
     }
   },
 }));

@@ -1,4 +1,4 @@
-export const COLORS = {
+export const LIGHT_COLORS = {
   primary: '#4CAF50',
   primaryLight: '#81C784',
   primaryDark: '#388E3C',
@@ -13,6 +13,29 @@ export const COLORS = {
   border: '#E0E0E0',
   disabled: '#BDBDBD',
 };
+
+export const DARK_COLORS = {
+  primary: '#4CAF50',
+  primaryLight: '#81C784',
+  primaryDark: '#388E3C',
+  secondary: '#FF9800',
+  danger: '#F44336',
+  warning: '#FF9800',
+  success: '#4CAF50',
+  background: '#0F0F0F',
+  surface: '#1C1C1E',
+  text: '#F2F2F7',
+  textSecondary: '#8E8E93',
+  border: '#2C2C2E',
+  disabled: '#48484A',
+};
+
+// Keep COLORS as an alias for backwards compatibility during migration
+export const COLORS = LIGHT_COLORS;
+
+export function getColors(isDark: boolean) {
+  return isDark ? DARK_COLORS : LIGHT_COLORS;
+}
 
 export const MEAL_CATEGORIES = ['breakfast', 'lunch', 'dinner', 'snack'] as const;
 

@@ -1,19 +1,21 @@
 import React from 'react';
 import { View, ActivityIndicator, Text, StyleSheet, Modal } from 'react-native';
-import { COLORS } from '../../lib/constants';
+import { useTheme } from '../../lib/theme';
 
 interface LoadingOverlayProps {
   visible: boolean;
   message?: string;
 }
 
-export function LoadingOverlay({ visible, message = 'Analyzing...' }: LoadingOverlayProps) {
+export function LoadingOverlay({ visible, message = 'Analyzing...' }: LoadingOverlayProps): React.JSX.Element {
+  const { colors } = useTheme();
+
   return (
     <Modal visible={visible} transparent animationType="fade">
       <View style={styles.backdrop}>
-        <View style={styles.card}>
-          <ActivityIndicator size="large" color={COLORS.primary} />
-          <Text style={styles.message}>{message}</Text>
+        <View style={[styles.card, { backgroundColor: colors.surface }]}>
+          <ActivityIndicator size="large" color={colors.primary} />
+          <Text style={[styles.message, { color: colors.text }]}>{message}</Text>
         </View>
       </View>
     </Modal>
@@ -28,7 +30,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   card: {
-    backgroundColor: '#fff',
     borderRadius: 16,
     padding: 28,
     alignItems: 'center',
@@ -37,7 +38,6 @@ const styles = StyleSheet.create({
   },
   message: {
     fontSize: 15,
-    color: COLORS.text,
     textAlign: 'center',
   },
 });

@@ -1,5 +1,11 @@
 import { create } from 'zustand';
-import { v4 as uuidv4 } from 'uuid';
+
+function generateId(): string {
+  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, (c) => {
+    const r = (Math.random() * 16) | 0;
+    return (c === 'x' ? r : (r & 0x3) | 0x8).toString(16);
+  });
+}
 import auth from '@react-native-firebase/auth';
 import firestore from '@react-native-firebase/firestore';
 import { analyzeFood, recalculateFoodItem } from '../lib/gemini';
@@ -49,7 +55,7 @@ export const useAnalysisStore = create<AnalysisSession & AnalysisActions>(
       try {
         const result = await analyzeFood(photoBase64, photoMimeType, textDescription);
         const foodItems: FoodItem[] = result.foods.map((f) => ({
-          id: uuidv4(),
+          id: generateId(),
           name: f.name,
           estimatedWeightGrams: f.estimatedWeightGrams,
           totalCalories: f.totalCalories,
@@ -60,7 +66,9 @@ export const useAnalysisStore = create<AnalysisSession & AnalysisActions>(
         set({ result, foodItems, isAnalyzing: false });
         return true;
       } catch (e: unknown) {
-set({ error: 'Failed to analyze food. Please try again.', isAnalyzing: false });
+        const msg = e instanceof Error ? e.message : String(e);
+        console.error('[analyze] error:', msg);
+        set({ error: msg, isAnalyzing: false });
         return false;
       }
     },
@@ -73,7 +81,7 @@ set({ error: 'Failed to analyze food. Please try again.', isAnalyzing: false });
       try {
         const result = await analyzeFood(photoBase64, photoMimeType, combined);
         const foodItems: FoodItem[] = result.foods.map((f) => ({
-          id: uuidv4(),
+          id: generateId(),
           name: f.name,
           estimatedWeightGrams: f.estimatedWeightGrams,
           totalCalories: f.totalCalories,
@@ -127,7 +135,7 @@ set({ error: 'Failed to analyze food. Please try again.', isAnalyzing: false });
       const user = auth().currentUser;
       if (!user || !photoUri) throw new Error('Not authenticated or no photo');
 
-      const mealId = uuidv4();
+      const mealId = generateId();
       const photoUrl = await uploadMealPhoto(user.uid, mealId, photoUri);
       const totalCalories = foodItems.reduce((sum, f) => sum + f.totalCalories, 0);
       const now = firestore.Timestamp.now();

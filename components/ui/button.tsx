@@ -7,7 +7,7 @@ import {
   ViewStyle,
   TextStyle,
 } from 'react-native';
-import { COLORS } from '../../lib/constants';
+import { useTheme } from '../../lib/theme';
 
 interface ButtonProps {
   label: string;
@@ -27,26 +27,36 @@ export function Button({
   disabled = false,
   style,
   textStyle,
-}: ButtonProps) {
+}: ButtonProps): React.JSX.Element {
+  const { colors } = useTheme();
   const isDisabled = disabled || loading;
+
+  const variantStyle: ViewStyle = (() => {
+    switch (variant) {
+      case 'primary': return { backgroundColor: colors.primary };
+      case 'secondary': return { backgroundColor: colors.secondary };
+      case 'outline': return { backgroundColor: 'transparent', borderWidth: 1.5, borderColor: colors.primary };
+      case 'danger': return { backgroundColor: colors.danger };
+    }
+  })();
 
   return (
     <TouchableOpacity
       onPress={onPress}
       disabled={isDisabled}
-      style={[styles.base, styles[variant], isDisabled && styles.disabled, style]}
+      style={[styles.base, variantStyle, isDisabled && styles.disabled, style]}
       activeOpacity={0.8}
     >
       {loading ? (
         <ActivityIndicator
-          color={variant === 'outline' ? COLORS.primary : '#fff'}
+          color={variant === 'outline' ? colors.primary : '#fff'}
           size="small"
         />
       ) : (
         <Text
           style={[
             styles.text,
-            variant === 'outline' && styles.textOutline,
+            variant === 'outline' && { color: colors.primary },
             isDisabled && styles.textDisabled,
             textStyle,
           ]}
@@ -67,20 +77,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     minHeight: 50,
   },
-  primary: {
-    backgroundColor: COLORS.primary,
-  },
-  secondary: {
-    backgroundColor: COLORS.secondary,
-  },
-  outline: {
-    backgroundColor: 'transparent',
-    borderWidth: 1.5,
-    borderColor: COLORS.primary,
-  },
-  danger: {
-    backgroundColor: COLORS.danger,
-  },
   disabled: {
     opacity: 0.5,
   },
@@ -88,9 +84,6 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontSize: 16,
     fontWeight: '600',
-  },
-  textOutline: {
-    color: COLORS.primary,
   },
   textDisabled: {
     color: '#fff',

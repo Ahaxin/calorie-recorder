@@ -1,51 +1,12 @@
-import { Text } from 'react-native';
+import React from 'react';
 import { Tabs } from 'expo-router';
-import { COLORS } from '../../lib/constants';
 
-export default function TabsLayout() {
+export default function TabsLayout(): React.JSX.Element {
   return (
-    <Tabs
-      screenOptions={{
-        tabBarActiveTintColor: COLORS.primary,
-        tabBarInactiveTintColor: COLORS.disabled,
-        tabBarStyle: {
-          backgroundColor: '#fff',
-          borderTopColor: COLORS.border,
-        },
-        headerShown: false,
-      }}
-    >
-      <Tabs.Screen
-        name="index"
-        options={{
-          title: 'Record',
-          tabBarIcon: ({ color }) => (
-            <TabIcon emoji="📷" color={color} />
-          ),
-        }}
-      />
-      <Tabs.Screen
-        name="history"
-        options={{
-          title: 'History',
-          tabBarIcon: ({ color }) => (
-            <TabIcon emoji="📅" color={color} />
-          ),
-        }}
-      />
-      <Tabs.Screen
-        name="profile"
-        options={{
-          title: 'Profile',
-          tabBarIcon: ({ color }) => (
-            <TabIcon emoji="👤" color={color} />
-          ),
-        }}
-      />
+    <Tabs screenOptions={{ tabBarStyle: { display: 'none' }, headerShown: false }}>
+      <Tabs.Screen name="index" />
+      <Tabs.Screen name="history" />
+      <Tabs.Screen name="profile" />
     </Tabs>
   );
-}
-
-function TabIcon({ emoji, color }: { emoji: string; color: string }) {
-  return <Text style={{ fontSize: 22, opacity: color === COLORS.primary ? 1 : 0.5 }}>{emoji}</Text>;
 }

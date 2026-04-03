@@ -9,6 +9,7 @@
     "web": "expo start --web"
   },
   "dependencies": {
+    "@expo/vector-icons": "^15.0.3",
     "@google/genai": "^1.48.0",
     "@react-native-firebase/app": "^24.0.0",
     "@react-native-firebase/auth": "^24.0.0",
@@ -19,6 +20,7 @@
     "expo": "~54.0.33",
     "expo-camera": "~17.0.10",
     "expo-constants": "~18.0.13",
+    "expo-crypto": "~15.0.8",
     "expo-dev-client": "~6.0.20",
     "expo-file-system": "~19.0.21",
     "expo-image-picker": "~17.0.10",
@@ -28,6 +30,7 @@
     "react": "19.1.0",
     "react-dom": "19.1.0",
     "react-native": "0.81.5",
+    "react-native-get-random-values": "^2.0.0",
     "react-native-reanimated": "~4.1.1",
     "react-native-safe-area-context": "~5.6.0",
     "react-native-screens": "~4.16.0",

@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import Svg, { Circle } from 'react-native-svg';
-import { COLORS } from '../lib/constants';
+import { useTheme } from '../lib/theme';
 
 interface CalorieRingProps {
   consumed: number;
@@ -9,7 +9,8 @@ interface CalorieRingProps {
   size?: number;
 }
 
-export function CalorieRing({ consumed, target, size = 140 }: CalorieRingProps) {
+export function CalorieRing({ consumed, target, size = 140 }: CalorieRingProps): React.JSX.Element {
+  const { colors } = useTheme();
   const radius = (size - 20) / 2;
   const circumference = 2 * Math.PI * radius;
   const progress = Math.min(consumed / target, 1);
@@ -23,7 +24,7 @@ export function CalorieRing({ consumed, target, size = 140 }: CalorieRingProps) 
           cx={size / 2}
           cy={size / 2}
           r={radius}
-          stroke={COLORS.border}
+          stroke={colors.border}
           strokeWidth={10}
           fill="none"
         />
@@ -31,7 +32,7 @@ export function CalorieRing({ consumed, target, size = 140 }: CalorieRingProps) 
           cx={size / 2}
           cy={size / 2}
           r={radius}
-          stroke={isOver ? COLORS.danger : COLORS.primary}
+          stroke={isOver ? colors.danger : colors.primary}
           strokeWidth={10}
           fill="none"
           strokeDasharray={`${circumference} ${circumference}`}
@@ -41,10 +42,10 @@ export function CalorieRing({ consumed, target, size = 140 }: CalorieRingProps) 
         />
       </Svg>
       <View style={[StyleSheet.absoluteFillObject, styles.center]}>
-        <Text style={[styles.consumed, isOver && styles.over]}>
+        <Text style={[styles.consumed, { color: isOver ? colors.danger : colors.primary }]}>
           {Math.round(consumed)}
         </Text>
-        <Text style={styles.label}>/ {target} kcal</Text>
+        <Text style={[styles.label, { color: colors.textSecondary }]}>/ {target} kcal</Text>
       </View>
     </View>
   );
@@ -62,14 +63,9 @@ const styles = StyleSheet.create({
   consumed: {
     fontSize: 26,
     fontWeight: '700',
-    color: COLORS.primary,
-  },
-  over: {
-    color: COLORS.danger,
   },
   label: {
     fontSize: 12,
-    color: COLORS.textSecondary,
     marginTop: 2,
   },
 });

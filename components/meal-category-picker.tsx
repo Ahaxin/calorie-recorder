@@ -1,27 +1,40 @@
 import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import { MealCategory } from '../types/food';
-import { COLORS, MEAL_CATEGORIES, MEAL_CATEGORY_LABELS, MEAL_CATEGORY_ICONS } from '../lib/constants';
+import { MEAL_CATEGORIES, MEAL_CATEGORY_LABELS, MEAL_CATEGORY_ICONS } from '../lib/constants';
+import { useTheme } from '../lib/theme';
 
 interface MealCategoryPickerProps {
   selected: MealCategory;
   onSelect: (category: MealCategory) => void;
 }
 
-export function MealCategoryPicker({ selected, onSelect }: MealCategoryPickerProps) {
+export function MealCategoryPicker({ selected, onSelect }: MealCategoryPickerProps): React.JSX.Element {
+  const { colors } = useTheme();
+
   return (
     <View style={styles.container}>
-      <Text style={styles.label}>Meal type</Text>
+      <Text style={[styles.label, { color: colors.textSecondary }]}>Meal type</Text>
       <View style={styles.row}>
         {MEAL_CATEGORIES.map((cat) => (
           <TouchableOpacity
             key={cat}
             onPress={() => onSelect(cat)}
-            style={[styles.chip, selected === cat && styles.chipSelected]}
+            style={[
+              styles.chip,
+              { borderColor: colors.border, backgroundColor: colors.surface },
+              selected === cat && { borderColor: colors.primary, backgroundColor: colors.primary + '15' },
+            ]}
             activeOpacity={0.7}
           >
             <Text style={styles.icon}>{MEAL_CATEGORY_ICONS[cat]}</Text>
-            <Text style={[styles.chipText, selected === cat && styles.chipTextSelected]}>
+            <Text
+              style={[
+                styles.chipText,
+                { color: colors.textSecondary },
+                selected === cat && { color: colors.primary },
+              ]}
+            >
               {MEAL_CATEGORY_LABELS[cat]}
             </Text>
           </TouchableOpacity>
@@ -36,7 +49,6 @@ const styles = StyleSheet.create({
   label: {
     fontSize: 14,
     fontWeight: '500',
-    color: COLORS.textSecondary,
   },
   row: {
     flexDirection: 'row',
@@ -51,20 +63,10 @@ const styles = StyleSheet.create({
     paddingVertical: 8,
     borderRadius: 20,
     borderWidth: 1.5,
-    borderColor: COLORS.border,
-    backgroundColor: COLORS.surface,
-  },
-  chipSelected: {
-    borderColor: COLORS.primary,
-    backgroundColor: COLORS.primary + '15',
   },
   icon: { fontSize: 16 },
   chipText: {
     fontSize: 13,
     fontWeight: '500',
-    color: COLORS.textSecondary,
-  },
-  chipTextSelected: {
-    color: COLORS.primary,
   },
 });

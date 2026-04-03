@@ -7,7 +7,7 @@ import {
   TextInputProps,
   ViewStyle,
 } from 'react-native';
-import { COLORS } from '../../lib/constants';
+import { useTheme } from '../../lib/theme';
 
 interface InputProps extends TextInputProps {
   label?: string;
@@ -15,16 +15,30 @@ interface InputProps extends TextInputProps {
   containerStyle?: ViewStyle;
 }
 
-export function Input({ label, error, containerStyle, style, ...rest }: InputProps) {
+export function Input({ label, error, containerStyle, style, ...rest }: InputProps): React.JSX.Element {
+  const { colors } = useTheme();
+
   return (
     <View style={containerStyle}>
-      {label && <Text style={styles.label}>{label}</Text>}
+      {label && (
+        <Text style={[styles.label, { color: colors.text }]}>{label}</Text>
+      )}
       <TextInput
-        style={[styles.input, error ? styles.inputError : undefined, style]}
-        placeholderTextColor={COLORS.disabled}
+        style={[
+          styles.input,
+          {
+            borderColor: error ? colors.danger : colors.border,
+            color: colors.text,
+            backgroundColor: colors.surface,
+          },
+          style,
+        ]}
+        placeholderTextColor={colors.disabled}
         {...rest}
       />
-      {error && <Text style={styles.error}>{error}</Text>}
+      {error && (
+        <Text style={[styles.error, { color: colors.danger }]}>{error}</Text>
+      )}
     </View>
   );
 }
@@ -33,25 +47,17 @@ const styles = StyleSheet.create({
   label: {
     fontSize: 14,
     fontWeight: '500',
-    color: COLORS.text,
     marginBottom: 6,
   },
   input: {
     borderWidth: 1.5,
-    borderColor: COLORS.border,
     borderRadius: 10,
     paddingHorizontal: 14,
     paddingVertical: 12,
     fontSize: 16,
-    color: COLORS.text,
-    backgroundColor: COLORS.surface,
-  },
-  inputError: {
-    borderColor: COLORS.danger,
   },
   error: {
     fontSize: 12,
-    color: COLORS.danger,
     marginTop: 4,
   },
 });
