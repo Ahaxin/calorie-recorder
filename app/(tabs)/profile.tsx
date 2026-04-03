@@ -28,8 +28,12 @@ export default function ProfileScreen() {
       Alert.alert('Invalid value', 'Please enter a calorie target between 500 and 10,000.');
       return;
     }
-    await updateProfile({ dailyCalorieTarget: val });
-    Alert.alert('Saved', 'Daily calorie target updated.');
+    try {
+      await updateProfile({ dailyCalorieTarget: val });
+      Alert.alert('Saved', 'Daily calorie target updated.');
+    } catch {
+      Alert.alert('Error', 'Failed to update daily calorie target. Please try again.');
+    }
   };
 
   return (

@@ -96,14 +96,22 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   updateProfile: async (updates) => {
     const user = auth().currentUser;
     if (!user) return;
-    const updatedAt = firestore.Timestamp.now();
-    await firestore()
-      .collection(USERS_COLLECTION)
-      .doc(user.uid)
-      .update({ ...updates, updatedAt });
-    set((state) => ({
-      profile: state.profile ? { ...state.profile, ...updates, updatedAt } : null,
-    }));
+    set({ loading: true, error: null });
+    try {
+      const updatedAt = firestore.Timestamp.now();
+      await firestore()
+        .collection(USERS_COLLECTION)
+        .doc(user.uid)
+        .update({ ...updates, updatedAt });
+      set((state) => ({
+        profile: state.profile ? { ...state.profile, ...updates, updatedAt } : null,
+      }));
+    } catch (e: unknown) {
+      set({ error: getFirebaseErrorMessage(e) });
+      throw e;
+    } finally {
+      set({ loading: false });
+    }
   },
 }));
 
