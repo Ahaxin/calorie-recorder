@@ -73,27 +73,45 @@ export const useAuthStore = create<AuthState>((set, get) => ({
 
   loadProfile: async () => {
     const user = auth().currentUser;
-    if (!user) return;
-    const doc = await firestore()
-      .collection(USERS_COLLECTION)
-      .doc(user.uid)
-      .get();
-    if (doc.exists()) {
-      set({ profile: { uid: user.uid, ...doc.data() } as UserProfile });
+    if (!user) {
+      set({ profile: null });
+      return;
+    }
+    try {
+      const doc = await firestore()
+        .collection(USERS_COLLECTION)
+        .doc(user.uid)
+        .get();
+
+      if (doc.exists()) {
+        set({ profile: { uid: user.uid, ...doc.data() } as UserProfile });
+      } else {
+        set({ profile: null });
+      }
+    } catch (e: unknown) {
+      set({ profile: null, error: getFirebaseErrorMessage(e) });
     }
   },
 
   updateProfile: async (updates) => {
     const user = auth().currentUser;
     if (!user) return;
-    const updatedAt = firestore.Timestamp.now();
-    await firestore()
-      .collection(USERS_COLLECTION)
-      .doc(user.uid)
-      .update({ ...updates, updatedAt });
-    set((state) => ({
-      profile: state.profile ? { ...state.profile, ...updates, updatedAt } : null,
-    }));
+    set({ loading: true, error: null });
+    try {
+      const updatedAt = firestore.Timestamp.now();
+      await firestore()
+        .collection(USERS_COLLECTION)
+        .doc(user.uid)
+        .update({ ...updates, updatedAt });
+      set((state) => ({
+        profile: state.profile ? { ...state.profile, ...updates, updatedAt } : null,
+      }));
+    } catch (e: unknown) {
+      set({ error: getFirebaseErrorMessage(e) });
+      throw e;
+    } finally {
+      set({ loading: false });
+    }
   },
 }));
 

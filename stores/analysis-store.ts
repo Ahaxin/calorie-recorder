@@ -12,8 +12,8 @@ import { format } from 'date-fns';
 interface AnalysisActions {
   setPhoto: (uri: string, base64: string, mimeType: string) => void;
   setTextDescription: (text: string) => void;
-  analyze: () => Promise<void>;
-  reanalyze: (additionalText: string) => Promise<void>;
+  analyze: () => Promise<boolean>;
+  reanalyze: (additionalText: string) => Promise<boolean>;
   updateFoodItem: (itemId: string, updates: Partial<FoodItem>) => void;
   recalculateItem: (itemId: string) => Promise<void>;
   setCategory: (category: MealCategory) => void;
@@ -44,7 +44,7 @@ export const useAnalysisStore = create<AnalysisSession & AnalysisActions>(
 
     analyze: async () => {
       const { photoBase64, photoMimeType, textDescription } = get();
-      if (!photoBase64) return;
+      if (!photoBase64) return false;
       set({ isAnalyzing: true, error: null });
       try {
         const result = await analyzeFood(photoBase64, photoMimeType, textDescription);
@@ -58,14 +58,16 @@ export const useAnalysisStore = create<AnalysisSession & AnalysisActions>(
           userModified: false,
         }));
         set({ result, foodItems, isAnalyzing: false });
+        return true;
       } catch (e: unknown) {
 set({ error: 'Failed to analyze food. Please try again.', isAnalyzing: false });
+        return false;
       }
     },
 
     reanalyze: async (additionalText) => {
       const { photoBase64, photoMimeType, textDescription } = get();
-      if (!photoBase64) return;
+      if (!photoBase64) return false;
       const combined = [textDescription, additionalText].filter(Boolean).join('. ');
       set({ textDescription: combined, isAnalyzing: true, error: null });
       try {
@@ -80,8 +82,10 @@ set({ error: 'Failed to analyze food. Please try again.', isAnalyzing: false });
           userModified: false,
         }));
         set({ result, foodItems, isAnalyzing: false });
+        return true;
       } catch {
         set({ error: 'Failed to analyze food. Please try again.', isAnalyzing: false });
+        return false;
       }
     },
 

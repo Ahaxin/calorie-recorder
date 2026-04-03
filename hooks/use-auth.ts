@@ -7,17 +7,17 @@ import { useAuthStore } from '../stores/auth-store';
  * Call this once at the root layout.
  */
 export function useAuthListener(): void {
-  const store = useAuthStore();
+  const loadProfile = useAuthStore((state) => state.loadProfile);
 
   useEffect(() => {
     const unsubscribe = auth().onAuthStateChanged(async (user) => {
       useAuthStore.setState({ user, loading: false });
       if (user) {
-        await store.loadProfile();
+        await loadProfile();
       } else {
         useAuthStore.setState({ profile: null });
       }
     });
     return unsubscribe;
-  }, []);
+  }, [loadProfile]);
 }

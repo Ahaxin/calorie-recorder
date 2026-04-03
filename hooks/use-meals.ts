@@ -23,6 +23,7 @@ export function useMealsByDate(date: string): {
       setLoading(false);
       return;
     }
+    setLoading(true);
 
     const unsubscribe = firestore()
       .collection(USERS_COLLECTION)
@@ -39,7 +40,10 @@ export function useMealsByDate(date: string): {
           setMeals(data);
           setLoading(false);
         },
-        () => setLoading(false)
+        () => {
+          setMeals([]);
+          setLoading(false);
+        }
       );
 
     return unsubscribe;
