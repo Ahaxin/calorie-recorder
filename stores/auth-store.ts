@@ -73,13 +73,23 @@ export const useAuthStore = create<AuthState>((set, get) => ({
 
   loadProfile: async () => {
     const user = auth().currentUser;
-    if (!user) return;
-    const doc = await firestore()
-      .collection(USERS_COLLECTION)
-      .doc(user.uid)
-      .get();
-    if (doc.exists()) {
-      set({ profile: { uid: user.uid, ...doc.data() } as UserProfile });
+    if (!user) {
+      set({ profile: null });
+      return;
+    }
+    try {
+      const doc = await firestore()
+        .collection(USERS_COLLECTION)
+        .doc(user.uid)
+        .get();
+
+      if (doc.exists()) {
+        set({ profile: { uid: user.uid, ...doc.data() } as UserProfile });
+      } else {
+        set({ profile: null });
+      }
+    } catch (e: unknown) {
+      set({ profile: null, error: getFirebaseErrorMessage(e) });
     }
   },
 

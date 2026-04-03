@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   View,
   Text,
@@ -17,6 +17,10 @@ export default function ProfileScreen() {
   const [target, setTarget] = useState(
     String(profile?.dailyCalorieTarget ?? DEFAULT_CALORIE_TARGET)
   );
+
+  useEffect(() => {
+    setTarget(String(profile?.dailyCalorieTarget ?? DEFAULT_CALORIE_TARGET));
+  }, [profile?.dailyCalorieTarget]);
 
   const handleSave = async () => {
     const val = parseInt(target, 10);
