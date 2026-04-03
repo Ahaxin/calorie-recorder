@@ -1,10 +1,10 @@
-import { Timestamp } from '@react-native-firebase/firestore';
+import type { FirebaseFirestoreTypes } from '@react-native-firebase/firestore';
 
 export interface UserProfile {
   uid: string;
   email: string;
   displayName: string;
   dailyCalorieTarget: number;
-  createdAt: Timestamp;
-  updatedAt: Timestamp;
+  createdAt: FirebaseFirestoreTypes.Timestamp;
+  updatedAt: FirebaseFirestoreTypes.Timestamp;
 }
