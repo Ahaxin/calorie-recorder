@@ -1,4 +1,4 @@
-import React, { useMemo, useEffect } from 'react';
+import React, { useEffect } from 'react';
 import {
   View,
   Text,
@@ -14,7 +14,7 @@ import { useAnalysisStore } from '../../stores/analysis-store';
 import { useMealsByDate } from '../../hooks/use-meals';
 import { format } from 'date-fns';
 import { useTheme } from '../../lib/theme';
-import { getMotivationalMessage } from '../../lib/messages';
+import { useMotivationalMessage } from '../../hooks/use-motivational-message';
 import { useRewardsStore } from '../../stores/rewards-store';
 import { useAuthStore } from '../../stores/auth-store';
 import { DEFAULT_CALORIE_TARGET } from '../../lib/constants';
@@ -53,10 +53,13 @@ export default function MainScreen(): React.JSX.Element {
   const rewardsLabel = streak > 0 ? `⭐ ${totalStars} · ${streak}🔥` : `⭐ ${totalStars}`;
   const hasMealsToday = todayMeals.length > 0;
 
-  const motivationalMessage = useMemo(
-    () => getMotivationalMessage({ hour: new Date().getHours(), hasMealsToday, streak }),
-    [hasMealsToday, streak]
-  );
+  const motivationalMessage = useMotivationalMessage({
+    hour: new Date().getHours(),
+    hasMealsToday,
+    streak,
+    caloriesConsumed: consumed,
+    calorieTarget: target,
+  });
 
   const handleCamera = async (): Promise<void> => {
     const result = await pickFromCamera();
