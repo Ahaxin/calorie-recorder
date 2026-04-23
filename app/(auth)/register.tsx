@@ -13,6 +13,7 @@ import { useAuthStore } from '../../stores/auth-store';
 import { Button } from '../../components/ui/button';
 import { Input } from '../../components/ui/input';
 import { useTheme } from '../../lib/theme';
+import { GoogleSignInButton } from '../../components/google-sign-in-button';
 
 export default function RegisterScreen(): React.JSX.Element {
   const { signUp, loading, error, clearError } = useAuthStore();
@@ -35,6 +36,14 @@ export default function RegisterScreen(): React.JSX.Element {
 
   const combinedError = localError || error;
   const isValid = name && email && password && confirm;
+
+  const OrDivider = (): React.JSX.Element => (
+    <View style={styles.divider}>
+      <View style={[styles.dividerLine, { backgroundColor: colors.border }]} />
+      <Text style={[styles.dividerText, { color: colors.textSecondary }]}>or</Text>
+      <View style={[styles.dividerLine, { backgroundColor: colors.border }]} />
+    </View>
+  );
 
   return (
     <KeyboardAvoidingView
@@ -101,6 +110,9 @@ export default function RegisterScreen(): React.JSX.Element {
             style={{ marginTop: 20 }}
           />
 
+          <OrDivider />
+          <GoogleSignInButton style={{ marginTop: 4 }} />
+
           <View style={styles.footer}>
             <Text style={[styles.footerText, { color: colors.textSecondary }]}>
               Already have an account?{' '}
@@ -157,4 +169,17 @@ const styles = StyleSheet.create({
   },
   footerText: { fontSize: 14 },
   link: { fontSize: 14, fontWeight: '600' },
+  divider: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginVertical: 16,
+    gap: 8,
+  },
+  dividerLine: {
+    flex: 1,
+    height: StyleSheet.hairlineWidth,
+  },
+  dividerText: {
+    fontSize: 12,
+  },
 });
