@@ -2,6 +2,7 @@ import { create } from 'zustand';
 import auth from '@react-native-firebase/auth';
 import firestore from '@react-native-firebase/firestore';
 import { router } from 'expo-router';
+import { GoogleSignin, statusCodes } from '@react-native-google-signin/google-signin';
 import { UserProfile } from '../types/user';
 import { DEFAULT_CALORIE_TARGET } from '../lib/constants';
 import { USERS_COLLECTION } from '../lib/firebase';
@@ -14,6 +15,7 @@ interface AuthState {
   signIn: (email: string, password: string) => Promise<void>;
   signUp: (email: string, password: string, displayName: string) => Promise<void>;
   signOut: () => Promise<void>;
+  googleSignIn: () => Promise<void>;
   updateProfile: (updates: Partial<Pick<UserProfile, 'displayName' | 'dailyCalorieTarget' | 'notificationsEnabled' | 'mealReminderTimes'>>) => Promise<void>;
   toggleTheme: () => Promise<void>;
   loadProfile: () => Promise<void>;
@@ -60,6 +62,68 @@ export const useAuthStore = create<AuthState>((set, get) => ({
         .set(profile);
       router.replace('/(onboarding)/step1-goal');
     } catch (e: unknown) {
+      set({ error: getFirebaseErrorMessage(e) });
+    } finally {
+      set({ loading: false });
+    }
+  },
+
+  googleSignIn: async () => {
+    set({ loading: true, error: null });
+    try {
+      GoogleSignin.configure({
+        webClientId: process.env.EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID,
+      });
+
+      await GoogleSignin.hasPlayServices({ showPlayServicesUpdateDialog: true });
+
+      const response = await GoogleSignin.signIn();
+
+      // User cancelled — silently bail out
+      if (response.type === 'cancelled') {
+        set({ loading: false });
+        return;
+      }
+
+      const idToken = response.data?.idToken;
+      if (!idToken) {
+        set({ error: 'Google sign-in failed. Please try again.', loading: false });
+        return;
+      }
+
+      const googleCredential = auth.GoogleAuthProvider.credential(idToken);
+      const { user } = await auth().signInWithCredential(googleCredential);
+
+      // Detect new vs returning user via Firestore profile existence
+      const docRef = firestore().collection(USERS_COLLECTION).doc(user.uid);
+      const doc = await docRef.get();
+
+      if (!doc.exists()) {
+        // New user — create minimal profile, send to onboarding
+        const now = firestore.Timestamp.now();
+        const profile: Omit<UserProfile, 'uid'> = {
+          email: user.email ?? '',
+          displayName: user.displayName ?? 'User',
+          dailyCalorieTarget: DEFAULT_CALORIE_TARGET,
+          createdAt: now,
+          updatedAt: now,
+        };
+        await docRef.set(profile);
+        router.replace('/(onboarding)/step1-goal');
+      } else {
+        // Returning user — go straight to tabs
+        router.replace('/(tabs)');
+      }
+    } catch (e: unknown) {
+      // Swallow "sign-in already in progress" silently
+      if (
+        typeof e === 'object' &&
+        e !== null &&
+        'code' in e &&
+        (e as { code: string }).code === statusCodes.IN_PROGRESS
+      ) {
+        return;
+      }
       set({ error: getFirebaseErrorMessage(e) });
     } finally {
       set({ loading: false });
